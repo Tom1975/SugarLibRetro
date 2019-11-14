@@ -48,7 +48,7 @@ build_script:
 after_build:
 - cmd : |- 
     set artifact_name=SugarLibRetro_%platform%.zip
-    7z a %artifact_name% %APPVEYOR_BUILD_FOLDER%\build\SugarLibRetro\%configuration%\SugarLibRetro.exe
+    7z a %artifact_name% %APPVEYOR_BUILD_FOLDER%\build\SugarLibRetro\%configuration%\SugarLibRetro.dll
     appveyor PushArtifact %artifact_name%
 - sh:  |-
     artifact_name=$APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/SugarLibRetro_$PLATFORM.gz
