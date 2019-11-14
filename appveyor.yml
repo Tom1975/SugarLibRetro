@@ -52,8 +52,8 @@ after_build:
     appveyor PushArtifact %artifact_name%
 - sh:  |-
     artifact_name=$APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/SugarLibRetro_$PLATFORM.gz
-    gzip -k $APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/SugarLibRetro
-    mv $APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/SugarLibRetro.gz $artifact_name
+    gzip -k $APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/libSugarLibRetro.so
+    mv $APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/libSugarLibRetro.so.gz $artifact_name
     appveyor PushArtifact $artifact_name
 
 
