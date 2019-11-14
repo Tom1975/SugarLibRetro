@@ -3,7 +3,8 @@ version: '{build}'
 branches:
   only:
   - master
- 
+  - Init_repo
+  
 image:
 - Visual Studio 2017
 - Ubuntu1804
