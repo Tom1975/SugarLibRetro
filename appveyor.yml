@@ -1,0 +1,78 @@
+version: '{build}'
+
+branches:
+  only:
+  - master
+ 
+image:
+- Visual Studio 2017
+- Ubuntu1804
+
+configuration:
+- Release   
+
+platform:
+- x86
+- x64
+
+install:
+- git submodule update --init --recursive
+- git submodule init 
+- sh: |- 
+    echo 'Update to gcc8'
+    sudo update-alternatives --set gcc /usr/bin/gcc-8
+
+  
+before_build:
+- cmd: |-
+    if %platform%==x64 (    set CMAKE_GENERATOR="Visual Studio 15 2017 Win64" ) else (   set CMAKE_GENERATOR="Visual Studio 15 2017")   
+    mkdir build
+    cd build
+    cmake --version
+    echo %CMAKE_GENERATOR%
+    cmake .. -G %CMAKE_GENERATOR%
+- sh: |-
+    mkdir build
+    cd build
+    cmake --version
+    cmake .. 
+
+    
+build_script:
+- cmd : |- 
+    cmake --build . --config %configuration%
+- sh: |-
+    make all
+
+after_build:
+- cmd : |- 
+    set artifact_name=SugarLibRetro_%platform%.zip
+    7z a %artifact_name% %APPVEYOR_BUILD_FOLDER%\build\SugarLibRetro\%configuration%\SugarLibRetro.exe
+    appveyor PushArtifact %artifact_name%
+- sh:  |-
+    artifact_name=$APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/SugarLibRetro_$PLATFORM.gz
+    gzip -k $APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/SugarLibRetro
+    mv $APPVEYOR_BUILD_FOLDER/build/SugarLibRetro/$configuration/SugarLibRetro.gz $artifact_name
+    appveyor PushArtifact $artifact_name
+
+
+only_commits:
+  files:
+    - CMakeLists.txt
+    - appveyor.yml
+    - SugarLibRetro/
+    - CPCCore/CPCCoreEmu/
+    - CPCCore/zlib
+
+deploy:
+  release: SugarLibRetro-v1.0.$(appveyor_build_version)
+  description: SugarLibRetro tool. Zip are for windows system, .gz for linux.
+  provider: GitHub
+  tag: $(APPVEYOR_REPO_TAG_NAME) 
+  auth_token:
+    secure: /Nr3QtuzpAw6S9iRX/KJ5f3RGXpx9xiuhrxz+jLV5aVSVrhNPX2ZTFaNn0ToOBDx
+  artifact: SugarLibRetro_x86.gz,SugarLibRetro_x64.gz,SugarLibRetro_x86.zip,SugarLibRetro_x64.zip
+  draft: false
+  prerelease: true
+  on:
+    APPVEYOR_REPO_TAG : true       # deploy on tag push only
