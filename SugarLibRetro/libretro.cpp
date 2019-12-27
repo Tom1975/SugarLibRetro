@@ -705,6 +705,26 @@ bool retro_load_game(const struct retro_game_info *info)
    check_variables();
 
    (void)info;
+   FILE* f;
+   unsigned char* buffer_ = nullptr;
+   f = fopen(info->path, "rb");
+   if (f != nullptr)
+   {
+      fseek(f, 0, SEEK_END);
+      unsigned int buffer_size_ = ftell(f);
+      rewind(f);
+      unsigned char* buffer_ = new unsigned char[buffer_size_];
+
+      fread(buffer_, buffer_size_, 1, f);
+      LoadCprFromBuffer(buffer_, buffer_size_);
+      fclose(f);
+   }
+
+   motherboard_->GetPSG()->Reset();
+   motherboard_->GetSig()->Reset();
+   motherboard_->InitStartOptimizedPlus();
+   motherboard_->OnOff();
+
    return true;
 }
 
