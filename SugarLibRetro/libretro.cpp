@@ -42,6 +42,7 @@ public:
    {
       // Init
       video_buffer = new int[1024 * 1024];
+      memset(video_buffer, 0, 1024 * 1024 * sizeof(int));
       pitch_ = 1024 * sizeof(unsigned int);
    };
    virtual ~RetroDisplay() {};
@@ -367,8 +368,8 @@ void retro_get_system_info(struct retro_system_info *info)
    memset(info, 0, sizeof(*info));
    info->library_name = "Sugarbox";
    info->library_version = "v1.00";
-   info->need_fullpath = false;
-   info->valid_extensions = "dsk|hfe|ipf|raw|cdt|wav|voc|csw|cpr"; // Anything is fine, we don't care.
+   info->need_fullpath = true;
+   info->valid_extensions = "cpr"; // Anything is fine, we don't care.
 }
 
 void retro_get_system_av_info(struct retro_system_av_info *info)
@@ -421,28 +422,13 @@ void retro_set_environment(retro_environment_t cb)
 
    cb(RETRO_ENVIRONMENT_SET_VARIABLES, (void*)vars);
 
-   bool no_content = true;
+   bool no_content = false;
    cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_content);
 
    if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
       log_cb = logging.log;
    else
       log_cb = fallback_log;
-
-   static const struct retro_subsystem_memory_info mem1[] = { { "ram1", 0x400 }, { "ram2", 0x401 } };
-   static const struct retro_subsystem_memory_info mem2[] = { { "ram3", 0x402 }, { "ram4", 0x403 } };
-
-   static const struct retro_subsystem_rom_info content[] = {
-      { "Test Rom #1", "bin", false, false, true, mem1, 2, },
-      { "Test Rom #2", "bin", false, false, true, mem2, 2, },
-   };
-
-   static const struct retro_subsystem_info types[] = {
-      { "Foo", "foo", content, 2, 0x200, },
-      { NULL },
-   };
-
-   cb(RETRO_ENVIRONMENT_SET_SUBSYSTEM_INFO, (void*)types);
 
    static const struct retro_controller_description controllers[] = {
       { "Dummy Controller #1", RETRO_DEVICE_SUBCLASS(RETRO_DEVICE_JOYPAD, 0) },
@@ -456,6 +442,9 @@ void retro_set_environment(retro_environment_t cb)
    };
 
    cb(RETRO_ENVIRONMENT_SET_CONTROLLER_INFO, (void*)ports);
+
+
+
 }
 
 void retro_set_audio_sample(retro_audio_sample_t cb)
@@ -705,25 +694,28 @@ bool retro_load_game(const struct retro_game_info *info)
    check_variables();
 
    (void)info;
-   FILE* f;
-   unsigned char* buffer_ = nullptr;
-   f = fopen(info->path, "rb");
-   if (f != nullptr)
+   if (info != nullptr)
    {
-      fseek(f, 0, SEEK_END);
-      unsigned int buffer_size_ = ftell(f);
-      rewind(f);
-      unsigned char* buffer_ = new unsigned char[buffer_size_];
+      FILE* f;
+      unsigned char* buffer_ = nullptr;
+      f = fopen(info->path, "rb");
+      if (f != nullptr)
+      {
+         fseek(f, 0, SEEK_END);
+         unsigned int buffer_size_ = ftell(f);
+         rewind(f);
+         unsigned char* buffer_ = new unsigned char[buffer_size_];
 
-      fread(buffer_, buffer_size_, 1, f);
-      LoadCprFromBuffer(buffer_, buffer_size_);
-      fclose(f);
+         fread(buffer_, buffer_size_, 1, f);
+         LoadCprFromBuffer(buffer_, buffer_size_);
+         fclose(f);
+      }
+
+      motherboard_->GetPSG()->Reset();
+      motherboard_->GetSig()->Reset();
+      motherboard_->InitStartOptimizedPlus();
+      motherboard_->OnOff();
    }
-
-   motherboard_->GetPSG()->Reset();
-   motherboard_->GetSig()->Reset();
-   motherboard_->InitStartOptimizedPlus();
-   motherboard_->OnOff();
 
    return true;
 }
