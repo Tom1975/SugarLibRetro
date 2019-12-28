@@ -325,6 +325,7 @@ void retro_init(void)
    motherboard_->GetVGA()->SetPAL(true);
 
    // load CPR
+   /*
 #define CPR_FILE "Barbarian - The Ultimate Warrior.cpr"
    FILE* f;
    unsigned char* buffer_ = nullptr;
@@ -340,7 +341,7 @@ void retro_init(void)
       LoadCprFromBuffer(buffer_, buffer_size_);
       fclose(f);
    }
-
+   */
    motherboard_->GetPSG()->Reset();
    motherboard_->GetSig()->Reset();
    motherboard_->InitStartOptimizedPlus();
