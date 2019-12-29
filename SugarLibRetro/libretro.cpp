@@ -11,7 +11,7 @@
 #define NO_RAW_FORMAT
 
 #include "Machine.h"
-
+#include "Cartridge.h"
 #include "libretro.h"
 
 //#define WIDTH  768
@@ -325,23 +325,8 @@ void retro_init(void)
    motherboard_->GetVGA()->SetPAL(true);
 
    // load CPR
-   /*
-#define CPR_FILE "Barbarian - The Ultimate Warrior.cpr"
-   FILE* f;
-   unsigned char* buffer_ = nullptr;
-   f = fopen( CPR_FILE, "rb");
-   if ( f != nullptr)
-   {
-      fseek(f, 0, SEEK_END);
-      unsigned int buffer_size_ = ftell(f);
-      rewind(f);
-      unsigned char* buffer_ = new unsigned char[buffer_size_];
+      LoadCprFromBuffer(AmstradPLUS_FR, sizeof(AmstradPLUS_FR));
 
-      fread(buffer_, buffer_size_, 1, f);
-      LoadCprFromBuffer(buffer_, buffer_size_);
-      fclose(f);
-   }
-   */
    motherboard_->GetPSG()->Reset();
    motherboard_->GetSig()->Reset();
    motherboard_->InitStartOptimizedPlus();

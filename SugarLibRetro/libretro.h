@@ -563,7 +563,7 @@ extern "C" {
                                                * retro_get_system_av_info().
                                                */
 #define RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS 11
-                                               /* const struct retro_input_descriptor * --
+                                               /* const struct retro_input_descriptor 
                                                 * Sets an array of retro_input_descriptors.
                                                 * It is up to the frontend to present this in a usable way.
                                                 * The array is terminated by retro_input_descriptor::description
